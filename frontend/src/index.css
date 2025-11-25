@@ -85,14 +85,90 @@ body,
   gap: 12px;
 }
 
-/* theme toggle */
-.theme-toggle {
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: var(--text);
-  padding: 6px 12px;
-  border-radius: 8px;
+/* Toggle container */
+.theme-toggle-pro {
+  position: relative;
+  width: 48px;
+  height: 24px;
+  border-radius: 24px;
   cursor: pointer;
+  padding: 0;
+  border: none;
+  background: var(--toggle-bg, #ddd);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.25s ease;
+  z-index: 0;
+  /* track at the bottom */
+}
+
+/* Icon base */
+.theme-toggle-pro .icon {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  z-index: 3;
+  /* Fix: Ensure icon is above the thumb */
+  color: #222;
+  /* Fix: Ensure icon contrasts with white thumb */
+}
+
+/* Icon placement */
+.theme-toggle-pro .sun {
+  left: 6px;
+}
+
+.theme-toggle-pro .moon {
+  right: 6px;
+}
+
+/* Thumb */
+.theme-toggle-pro .thumb {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: white;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.25s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+  z-index: 2;
+  /* thumb always on top */
+}
+
+/* Light mode styles */
+.theme-toggle-pro.light {
+  --toggle-bg: #e5e5e5;
+  /* color: #000; Removed as we set icon color directly */
+  /* makes sun visible */
+}
+
+.theme-toggle-pro.light .sun {
+  opacity: 1;
+}
+
+.theme-toggle-pro.light .thumb {
+  transform: translateX(0px);
+}
+
+/* Dark mode styles */
+.theme-toggle-pro.dark {
+  --toggle-bg: #333;
+  /* color: #fff; Removed to keep icon dark on white thumb */
+  /* makes moon visible */
+}
+
+.theme-toggle-pro.dark .moon {
+  opacity: 1;
+}
+
+.theme-toggle-pro.dark .thumb {
+  transform: translateX(24px);
 }
 
 /* --------------------------------------------------

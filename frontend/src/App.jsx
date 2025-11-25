@@ -27,11 +27,23 @@ export default function App() {
     return "dark";
   });
 
-  const closePanel = () => setSelectedCity(null);
+  const closePanel = () => {
+    setSelectedCity(null);
+    setSelectedFilter("ALL"); // Reset filter when panel closes
+  };
 
   const handleFilterSelect = (filter) => {
     setSelectedFilter(filter);
-    setSelectedCity(null); // Close panel when filter changes
+
+    if (filter === "ALL") {
+      setSelectedCity(null);
+    } else {
+      // Find the city object and open the panel
+      const city = clusters.find(c => c.city === filter);
+      if (city) {
+        setSelectedCity(city);
+      }
+    }
   };
 
   const toggleTheme = () => {
@@ -64,6 +76,11 @@ export default function App() {
     return () => mediaQuery.removeEventListener("change", handleChange);
   }, []);
 
+  const handleMarkerClick = (city) => {
+    setSelectedCity(city);
+    setSelectedFilter(city.city); // Sync filter with marker selection
+  };
+
   return (
     <>
       <HeaderBar
@@ -82,12 +99,12 @@ export default function App() {
         <div className="map-box">
           <MapView
             clusters={filteredClusters}
-            onCitySelect={setSelectedCity}
+            onCitySelect={handleMarkerClick}
             selectedFilter={selectedFilter}
           />
         </div>
 
-        <RightPanel city={selectedCity} onClose={closePanel} />
+        <RightPanel city={selectedCity} onClose={closePanel} isOpen={!!selectedCity} />
       </div>
     </>
   );

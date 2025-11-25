@@ -14,7 +14,18 @@ export function useCityClusters() {
                     throw new Error(`Failed to fetch: ${res.status} ${res.statusText}`);
                 }
                 const json = await res.json();
-                setData(json);
+
+                // Mock categories for development
+                const categories = ["Business", "Personal", "Organization"];
+                const enrichedData = json.map(city => ({
+                    ...city,
+                    users: city.users.map(u => ({
+                        name: u,
+                        category: categories[Math.floor(Math.random() * categories.length)]
+                    }))
+                }));
+
+                setData(enrichedData);
                 setError(null);
             } catch (err) {
                 console.error("Error loading clusters:", err);

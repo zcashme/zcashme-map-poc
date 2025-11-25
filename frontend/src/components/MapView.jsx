@@ -52,15 +52,10 @@ function ClusterLayer({ clusters, onCitySelect, selectedFilter }) {
     clusters.forEach((c) => {
       const marker = L.marker([c.lat, c.lon]);
 
-      marker.bindPopup(`
-        <div style="font-size:14px;">
-          <strong>${c.city}</strong><br/>
-          Users: ${c.count}
-        </div>
-      `);
+      // marker.bindPopup(...) removed to prevent default popup behavior
 
       marker.on("click", () => {
-        marker.openPopup();
+        // marker.openPopup(); // Disable default popup in favor of Right Panel
         onCitySelect(c);
       });
 

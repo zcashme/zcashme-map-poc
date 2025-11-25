@@ -1,7 +1,22 @@
-export default function RightPanel({ city, onClose }) {
+import { useState, useEffect } from "react";
+import "./RightPanel.css";
+
+export default function RightPanel({ city, onClose, isOpen }) {
+  const [selectedCategory, setSelectedCategory] = useState("ALL");
+
+  // Reset category when city changes
+  useEffect(() => {
+    setSelectedCategory("ALL");
+  }, [city]);
+
+  const filteredUsers = city?.users.filter(u => {
+    if (selectedCategory === "ALL") return true;
+    return u.category === selectedCategory;
+  }) || [];
+
   return (
-    <aside className="right-panel">
-      
+    <aside className={`right-panel ${isOpen ? "open" : ""}`}>
+
       {/* Header */}
       <div className="panel-header">
         <h2>{city ? city.city : "Click a city"}</h2>
@@ -17,12 +32,32 @@ export default function RightPanel({ city, onClose }) {
           <>
             <p className="meta">{city.country} • {city.count} users</p>
 
-            <h3>Users</h3>
+            {/* Category Sub-filter */}
+            <div className="category-filter">
+              {["ALL", "Business", "Personal", "Organization"].map(cat => (
+                <button
+                  key={cat}
+                  className={`cat-btn ${selectedCategory === cat ? "active" : ""}`}
+                  onClick={() => setSelectedCategory(cat)}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+
+            <h3>Users ({filteredUsers.length})</h3>
 
             <ul className="user-list">
-              {city.users.map((u, i) => (
-                <li key={i} className="user-item">{u}</li>
-              ))}
+              {filteredUsers.length > 0 ? (
+                filteredUsers.map((u, i) => (
+                  <li key={i} className="user-item">
+                    <strong>{u.name}</strong>
+                    <div style={{ fontSize: "0.8em", color: "#888" }}>{u.category}</div>
+                  </li>
+                ))
+              ) : (
+                <li className="no-users">No users found in this category.</li>
+              )}
             </ul>
           </>
         )}

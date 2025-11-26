@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { API_URL } from '../config';
 
 export function useCityClusters() {
     const [data, setData] = useState([]);
@@ -9,7 +10,7 @@ export function useCityClusters() {
         async function load() {
             try {
                 setLoading(true);
-                const res = await fetch("https://zcashme-map-api.trinath-panda-6cd.workers.dev/");
+                const res = await fetch(API_URL);
                 if (!res.ok) {
                     throw new Error(`Failed to fetch: ${res.status} ${res.statusText}`);
                 }

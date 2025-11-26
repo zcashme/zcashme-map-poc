@@ -5,43 +5,41 @@ import "leaflet.markercluster";
 import "leaflet/dist/leaflet.css";
 import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/MarkerCluster.Default.css";
+import { useTheme } from "../context/ThemeContext";
+import { MAP_CONFIG, TILE_URLS, ATTRIBUTION } from "../config";
+import "../utils/leafletSetup"; // Import to execute side effects
+import "./MapView.css";
 
-import icon from "leaflet/dist/images/marker-icon.png";
-import iconShadow from "leaflet/dist/images/marker-shadow.png";
-
-let DefaultIcon = L.icon({
-  iconUrl: icon,
-  shadowUrl: iconShadow,
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-});
-
-L.Marker.prototype.options.icon = DefaultIcon;
-
-export default function MapView({ clusters, onCitySelect, selectedFilter, theme }) {
+export default function MapView({ clusters, onCitySelect, selectedFilter }) {
+  const { theme } = useTheme();
   const isDark = theme === "dark";
-  const tileUrl = isDark
-    ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-    : "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
+
+  const tileUrl = isDark ? TILE_URLS.dark : TILE_URLS.light;
 
   return (
-    <MapContainer
-      center={[20, 0]}
-      zoom={2}
-      worldCopyJump={true}
-      style={{ width: "100%", height: "100%", background: isDark ? "#111" : "#ddd" }}
-    >
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-        url={tileUrl}
-      />
+    <div className={`map-view-container ${theme}`}>
+      <MapContainer
+        center={MAP_CONFIG.center}
+        zoom={MAP_CONFIG.zoom}
+        minZoom={MAP_CONFIG.minZoom}
+        maxBounds={MAP_CONFIG.maxBounds}
+        maxBoundsViscosity={MAP_CONFIG.maxBoundsViscosity}
+        worldCopyJump={MAP_CONFIG.worldCopyJump}
+        style={{ width: "100%", height: "100%" }}
+      >
+        <TileLayer
+          attribution={ATTRIBUTION}
+          url={tileUrl}
+          noWrap={false} // Allow multiple worlds
+        />
 
-      <ClusterLayer
-        clusters={clusters}
-        onCitySelect={onCitySelect}
-        selectedFilter={selectedFilter}
-      />
-    </MapContainer>
+        <ClusterLayer
+          clusters={clusters}
+          onCitySelect={onCitySelect}
+          selectedFilter={selectedFilter}
+        />
+      </MapContainer>
+    </div>
   );
 }
 

@@ -1,171 +1,117 @@
-# 🚀 **ZcashMe Map System – Final README & Architecture**
+# Zcash.me Map
 
-This document explains the full implementation of the **ZcashMe User Map**, including the backend Worker, frontend React app, clustering logic, user list panel, and architecture choices.
+A privacy-focused, interactive map application visualizing Zcash users and communities worldwide. Built with modern web technologies for performance and scalability.
 
----
+## 🚀 Features
 
-# 📌 **1. Project Overview**
+- **Interactive Map**: Visualize user clusters with smooth zooming and panning.
+- **City Filtering**: Filter users by city with URL synchronization (deep linking).
+- **Dark/Light Mode**: Automatic system detection with manual toggle.
+- **Responsive Design**: Optimized for desktop and mobile devices.
+- **Privacy First**: No personal data tracking; uses aggregated public data.
 
-The ZcashMe Map displays **global ZcashMe users by city** on an interactive map.
-Features:
+## 🛠 Architecture
 
-* Marker clusters for dense areas
-* On-click popup → city + user count
-* On-click right-side panel → full list of usernames
-* Dark/Light mode
-* Top-3 leaderboard
-* Cloudflare Worker API backend
-* Vite + React frontend
+The project consists of a React frontend and a Cloudflare Workers backend.
 
-POC used a synthetic CSV.
-Production will fetch directly from Supabase.
+```mermaid
+graph TD
+    User[User Browser]
+    
+    subgraph Frontend [Vite + React]
+        App[App Component]
+        Theme[Theme Context]
+        Map[Leaflet Map]
+        UI[UI Components]
+    end
+    
+    subgraph Backend [Cloudflare Workers]
+        Worker[API Worker]
+        CSV[CSV Parser]
+    end
+    
+    subgraph Data [Data Source]
+        Assets[Static Assets (CSV)]
+    end
 
----
-
-# 📌 **2. High-Level Architecture**
-
-```
-+---------------------+         +---------------------------+
-|  Cloudflare Worker  | <--->   |  zks_users_with_cities.csv|
-|  Backend API        |         |  (POC static data source) |
-+---------------------+         +---------------------------+
-             |
-             | JSON Response (clusters)
-             v
-+----------------------------------------------------------+
-|                   React Frontend (Vite)                  |
-|  +--------------------+   +----------------------------+ |
-|  |   MapView.jsx      |   |     RightPanel.jsx         | |
-|  | - loads clusters   |   | - displays user list       | |
-|  | - renders markers  |   | - listens to selected city | |
-|  +--------------------+   +----------------------------+ |
-|                        |                                |
-|  +----------------------+   +---------------------------+|
-|  | HeaderBar.jsx        |   |  ThemeToggle.jsx         ||
-|  | - shows leaderboard  |   | - dark/light mode        ||
-|  +----------------------+   +---------------------------+|
-|                                                          |
-|  index.css: Full UI layout, overlay panel, theme system  |
-+----------------------------------------------------------+
+    User -->|HTTPS| App
+    App -->|State| Theme
+    App -->|Render| Map
+    App -->|Render| UI
+    
+    App -->|Fetch Data| Worker
+    Worker -->|Read| Assets
+    Worker -->|Parse| CSV
+    Worker -->|JSON| App
 ```
 
----
+### Tech Stack
 
-# 📌 **3. Data Flow**
+- **Frontend**: React 18, Vite, Leaflet, React Router
+- **Backend**: Cloudflare Workers, PapaParse
+- **Styling**: CSS Modules / Vanilla CSS (Scoped)
 
-### **Step 1 — Frontend fetches backend API**
+## 📦 Setup & Installation
 
-`MapView.jsx` calls the Worker:
+### Prerequisites
 
-```
-GET https://zcashme-map-api.<account>.workers.dev/
-```
+- Node.js (v18+)
+- npm or pnpm
 
-### **Step 2 — Backend returns cluster list**
+### Frontend
 
-Example cluster object:
+1. Navigate to the frontend directory:
 
-```json
-{
-  "city": "Tokyo",
-  "country": "Japan",
-  "lat": 35.687,
-  "lon": 139.7495,
-  "count": 31,
-  "users": [
-    "Cobra", "Ripley", "Bram", ...
-  ]
-}
-```
+    ```bash
+    cd frontend
+    ```
 
-### **Step 3 — Map renders markers**
+2. Install dependencies:
 
-* Each cluster gets a Leaflet marker.
-* Popup = city + user count.
+    ```bash
+    npm install
+    ```
 
-### **Step 4 — User clicks marker**
+3. Start the development server:
 
-* Popup opens.
-* `onCitySelect(cluster)` sends object to App.
+    ```bash
+    npm run dev
+    ```
 
-### **Step 5 — App.jsx sets `selectedCity`**
+### Backend
 
-* RightPanel receives the full object.
-* Panel displays usernames.
+1. Navigate to the backend directory:
 
----
+    ```bash
+    cd backend
+    ```
 
-# 📌 **4. Backend Architecture (Cloudflare Worker)**
+2. Install dependencies:
 
-### **Technologies Used**
+    ```bash
+    npm install
+    ```
 
-* Cloudflare Workers
-* Static CSV served as asset
-* PapaParse for CSV → JSON
-* No database needed for POC
+3. Start the local worker:
 
-### **What the Worker Does**
+    ```bash
+    npm run dev
+    ```
 
-1. Loads CSV from `assets/`
-2. Parses into usable objects
-3. Groups users by city
-4. Outputs a clean clusters array
+## 🌍 Deployment
 
-### **Why Cloudflare?**
+### Frontend
 
-* Extremely lightweight
-* Zero infrastructure
-* Fastest edge distribution
-* Perfect for simple JSON APIs
+The frontend is designed to be deployed as a static site (e.g., Cloudflare Pages, Vercel, Netlify).
 
-### **Production Plan**
-
-Workers will fetch:
-
-```
-GET https://<your-supabase-url>/rest/v1/zks_users
+```bash
+npm run build
 ```
 
-Then do the same cluster-building logic.
+### Backend
 
----
+The backend is deployed to Cloudflare Workers.
 
-# 📌 **5. Frontend Architecture**
-
-### **Technology Stack**
-
-* React + Vite
-* Leaflet + MarkerCluster
-* CSS Custom Properties (dark/light theme)
-* Absolute-position overlay panel
-* No UI frameworks → very light
-
-### **Key Components**
-
-#### **`MapView.jsx`**
-
-* Fetches backend data
-* Renders map & clusters
-* Handles marker click → selected city
-* Shows popup
-
-#### **`RightPanel.jsx`**
-
-* Displays user list for selected city
-* Always overlays map
-* Fixed at right side
-* Great UX
-* No layout shifting
-
-#### **`HeaderBar.jsx`**
-
-* Leaderboard of top cities
-* Theme toggle button
-
-#### **`App.jsx`**
-
-* Central state manager
-* Holds `selectedCity` + `clusters`
-* Layout wrapper
-
----
+```bash
+npm run deploy
+```

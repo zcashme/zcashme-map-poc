@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import MapView from "../components/MapView";
 import RightPanel from "../components/RightPanel";
@@ -13,32 +13,30 @@ export default function MapPage() {
     const navigate = useNavigate();
     const { data: clusters, loading } = useCityClusters();
 
-    const [selectedCity, setSelectedCity] = useState(null);
-    const [selectedFilter, setSelectedFilter] = useState("ALL");
+    const [manualCountry, setManualCountry] = useState("ALL");
 
-    // Sync URL with State
-    useEffect(() => {
-        if (loading) return;
+    // Derived State
+    const derivedCity = useMemo(() => {
+        if (!citySlug || loading) return null;
+        return fromSlug(citySlug, clusters);
+    }, [citySlug, clusters, loading]);
 
-        if (citySlug) {
-            const city = fromSlug(citySlug, clusters);
-            if (city) {
-                setSelectedCity(city);
-                setSelectedFilter(city.city);
-            } else {
-                // Invalid slug, redirect to home
-                navigate("/", { replace: true });
-            }
-        } else {
-            setSelectedCity(null);
-            setSelectedFilter("ALL");
-        }
-    }, [citySlug, clusters, loading, navigate]);
+    // If URL has a city, that city dictates the country.
+    // If URL has no city, we use the manual country filter.
+    const selectedCountry = derivedCity ? derivedCity.country : manualCountry;
+
+    // Selected Filter (City) is derivedCity's name or "ALL"
+    const selectedFilter = derivedCity ? derivedCity.city : "ALL";
 
     const filteredClusters = useMemo(() => {
-        if (selectedFilter === "ALL") return clusters;
-        return clusters.filter(c => c.city === selectedFilter);
-    }, [clusters, selectedFilter]);
+        if (selectedFilter !== "ALL") {
+            return clusters.filter(c => c.city === selectedFilter);
+        }
+        if (selectedCountry !== "ALL") {
+            return clusters.filter(c => c.country === selectedCountry);
+        }
+        return clusters;
+    }, [clusters, selectedFilter, selectedCountry]);
 
     const closePanel = () => {
         navigate("/");
@@ -50,6 +48,11 @@ export default function MapPage() {
         } else {
             navigate(`/${toSlug(filter)}`);
         }
+    };
+
+    const handleCountrySelect = (country) => {
+        setManualCountry(country);
+        navigate("/");
     };
 
     const handleMarkerClick = (city) => {
@@ -64,18 +67,26 @@ export default function MapPage() {
                 clusters={clusters}
                 selectedFilter={selectedFilter}
                 onFilterSelect={handleFilterSelect}
+                selectedCountry={selectedCountry}
+                onCountrySelect={handleCountrySelect}
             />
 
-            <div className={`slide-container ${selectedCity ? "open" : ""}`}>
+            <div className={`slide-container ${derivedCity ? "open" : ""}`}>
                 <div className="map-box">
                     <MapView
                         clusters={filteredClusters}
                         onCitySelect={handleMarkerClick}
                         selectedFilter={selectedFilter}
+                        selectedCountry={selectedCountry}
                     />
                 </div>
 
-                <RightPanel city={selectedCity} onClose={closePanel} isOpen={!!selectedCity} />
+                <RightPanel
+                    key={derivedCity ? derivedCity.city : "empty"}
+                    city={derivedCity}
+                    onClose={closePanel}
+                    isOpen={!!derivedCity}
+                />
             </div>
         </ThemeProvider>
     );

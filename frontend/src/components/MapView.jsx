@@ -10,7 +10,7 @@ import { MAP_CONFIG, TILE_URLS, ATTRIBUTION } from "../config";
 import "../utils/leafletSetup"; // Import to execute side effects
 import "./MapView.css";
 
-export default function MapView({ clusters, onCitySelect, selectedFilter }) {
+export default function MapView({ clusters, onCitySelect, selectedFilter, selectedCountry }) {
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
@@ -37,26 +37,35 @@ export default function MapView({ clusters, onCitySelect, selectedFilter }) {
           clusters={clusters}
           onCitySelect={onCitySelect}
           selectedFilter={selectedFilter}
+          selectedCountry={selectedCountry}
         />
       </MapContainer>
     </div>
   );
 }
 
-function ClusterLayer({ clusters, onCitySelect, selectedFilter }) {
+function ClusterLayer({ clusters, onCitySelect, selectedFilter, selectedCountry }) {
   const map = useMap();
 
   // Handle view transitions when filter changes
   useEffect(() => {
     if (selectedFilter === "ALL") {
-      // Reset to world view
-      map.fitBounds([[-90, -180], [90, 180]]);
+      if (selectedCountry && selectedCountry !== "ALL") {
+        // Zoom to country bounds
+        if (clusters.length > 0) {
+          const bounds = L.latLngBounds(clusters.map(c => [c.lat, c.lon]));
+          map.fitBounds(bounds, { padding: [50, 50], maxZoom: 10 });
+        }
+      } else {
+        // Reset to world view
+        map.fitBounds([[-90, -180], [90, 180]]);
+      }
     } else if (clusters.length === 1) {
       // Fly to specific city
       const city = clusters[0];
       map.flyTo([city.lat, city.lon], 8);
     }
-  }, [selectedFilter, clusters, map]);
+  }, [selectedFilter, selectedCountry, clusters, map]);
 
   useEffect(() => {
     if (!clusters.length) return;
@@ -82,7 +91,7 @@ function ClusterLayer({ clusters, onCitySelect, selectedFilter }) {
 
     map.addLayer(markers);
     return () => map.removeLayer(markers);
-  }, [clusters, onCitySelect]); // Re-run when clusters change
+  }, [clusters, onCitySelect, map]); // Re-run when clusters change
 
   return null;
 }

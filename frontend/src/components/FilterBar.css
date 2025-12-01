@@ -1,10 +1,16 @@
 .filter-bar-container {
     position: relative;
-    width: 300px;
-    /* Adjust width as needed */
+    display: flex;
+    gap: 10px;
+    width: auto;
+    max-width: 600px;
     margin: 10px;
     z-index: 2000;
-    /* Ensure it sits above map controls */
+}
+
+.dropdown-wrapper {
+    position: relative;
+    width: 200px;
 }
 
 .dropdown-trigger {
@@ -40,6 +46,7 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    z-index: 2001;
 }
 
 .search-box {

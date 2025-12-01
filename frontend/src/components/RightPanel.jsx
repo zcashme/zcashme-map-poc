@@ -1,13 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import "./RightPanel.css";
 
 export default function RightPanel({ city, onClose, isOpen }) {
   const [selectedCategory, setSelectedCategory] = useState("ALL");
 
-  // Reset category when city changes
-  useEffect(() => {
-    setSelectedCategory("ALL");
-  }, [city]);
+  // Reset category when city changes - Handled by key prop in parent
 
   const filteredUsers = city?.users.filter(u => {
     if (selectedCategory === "ALL") return true;

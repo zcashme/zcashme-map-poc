@@ -1,4 +1,5 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useMemo } from "react";
+import { useClickOutside } from "../hooks/useClickOutside";
 import "./FilterBar.css";
 
 export default function FilterBar({ clusters, selectedFilter, onFilterSelect }) {
@@ -10,7 +11,10 @@ export default function FilterBar({ clusters, selectedFilter, onFilterSelect }) 
     const totalUsers = clusters.reduce((acc, c) => acc + c.count, 0);
 
     // Sort clusters alphabetically
-    const sortedClusters = [...clusters].sort((a, b) => a.city.localeCompare(b.city));
+    const sortedClusters = useMemo(() =>
+        [...clusters].sort((a, b) => a.city.localeCompare(b.city)),
+        [clusters]
+    );
 
     // Filter options based on search term
     const filteredOptions = sortedClusters.filter((c) =>
@@ -18,15 +22,7 @@ export default function FilterBar({ clusters, selectedFilter, onFilterSelect }) 
     );
 
     // Close dropdown when clicking outside
-    useEffect(() => {
-        function handleClickOutside(event) {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-                setIsOpen(false);
-            }
-        }
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
+    useClickOutside(dropdownRef, () => setIsOpen(false));
 
     const handleSelect = (value) => {
         onFilterSelect(value);

@@ -1,7 +1,22 @@
+import { useMemo } from "react";
 import ThemeToggle from "./ThemeToggle";
+import "./HeaderBar.css";
 
-export default function HeaderBar({ clusters = [], theme, onToggleTheme }) {
-  const top3 = [...clusters].sort((a, b) => b.count - a.count).slice(0, 3);
+/**
+ * @typedef {Object} Cluster
+ * @property {string} city
+ * @property {number} count
+ */
+
+/**
+ * @param {Object} props
+ * @param {Cluster[]} props.clusters
+ */
+export default function HeaderBar({ clusters = [] }) {
+  const top3 = useMemo(() =>
+    [...clusters].sort((a, b) => b.count - a.count).slice(0, 3),
+    [clusters]
+  );
 
   return (
     <header className="header-bar">
@@ -10,21 +25,21 @@ export default function HeaderBar({ clusters = [], theme, onToggleTheme }) {
 
         <ol className="leader-list">
           {top3.map((c, i) => (
-            <li key={c.city}>
-              <span className="rank">{i + 1}.</span>
+            <li key={c.city} title={`${c.city}: ${c.count} users`}>
+              <span className="rank">#{i + 1}</span>
               <span className="city">{c.city}</span>
               <span className="count">{c.count}</span>
             </li>
           ))}
 
           {top3.length === 0 && (
-            <li>No data available</li>
+            <li className="empty">No data available</li>
           )}
         </ol>
       </div>
 
       <div className="header-right">
-        <ThemeToggle theme={theme} onToggle={onToggleTheme} />
+        <ThemeToggle />
       </div>
     </header>
   );

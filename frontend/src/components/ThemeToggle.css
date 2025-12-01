@@ -1,0 +1,93 @@
+.theme-toggle-pro {
+  position: relative;
+  width: 56px;
+  height: 28px;
+  border-radius: 30px;
+  cursor: pointer;
+  padding: 0;
+  border: none;
+  background: var(--toggle-bg, #e2e8f0);
+  transition: background 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.theme-toggle-pro:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.theme-toggle-pro .thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  z-index: 2;
+}
+
+.theme-toggle-pro .icon {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  width: 100%;
+  height: 100%;
+}
+
+.theme-toggle-pro .icon svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+  margin: 0;
+}
+
+.theme-toggle-pro .sun {
+  color: #f59e0b;
+  opacity: 0;
+  transform: scale(0.5) rotate(-90deg);
+}
+
+.theme-toggle-pro .moon {
+  color: #64748b;
+  opacity: 0;
+  transform: scale(0.5) rotate(90deg);
+}
+
+/* Light Mode State */
+.theme-toggle-pro.light {
+  --toggle-bg: #e2e8f0;
+}
+
+.theme-toggle-pro.light .thumb {
+  transform: translateX(0);
+}
+
+.theme-toggle-pro.light .sun {
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
+}
+
+/* Dark Mode State */
+.theme-toggle-pro.dark {
+  --toggle-bg: #334155;
+}
+
+.theme-toggle-pro.dark .thumb {
+  transform: translateX(28px);
+  background: #1e293b;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+.theme-toggle-pro.dark .moon {
+  opacity: 1;
+  color: #94a3b8;
+  transform: scale(1) rotate(0deg);
+}

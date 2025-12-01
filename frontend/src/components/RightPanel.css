@@ -4,13 +4,13 @@
 .right-panel {
     position: fixed;
 
-    /* FIX #3: Top = Header (62px) + FilterBar (50px) */
-    top: 112px;
+    /* FIX #3: Top = Header (64px) + FilterBar (50px) */
+    top: 114px;
 
     right: 0;
     width: 320px;
-    /* Height = 100% - Top Offset (112px) */
-    height: calc(100% - 112px);
+    /* Height = 100% - Top Offset (114px) */
+    height: calc(100% - 114px);
     background: var(--panel-bg);
     overflow-y: auto;
     z-index: 99999;

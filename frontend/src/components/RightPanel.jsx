@@ -48,7 +48,13 @@ export default function RightPanel({ city, onClose, isOpen }) {
               {filteredUsers.length > 0 ? (
                 filteredUsers.map((u, i) => (
                   <li key={i} className="user-item">
-                    <strong>{u.name}</strong>
+                    {u.profileurl ? (
+                      <a href={u.profileurl} target="_blank" rel="noopener noreferrer" className="user-link">
+                        <strong>{u.name}</strong>
+                      </a>
+                    ) : (
+                      <strong>{u.name}</strong>
+                    )}
                     <div style={{ fontSize: "0.8em", color: "#888" }}>{u.category}</div>
                   </li>
                 ))

@@ -56,9 +56,13 @@ export default {
           };
         }
 
-        // Add username
+        // Add username with profile and category
         if (row.name) {
-          clusters[city].users.push(row.name);
+          clusters[city].users.push({
+            name: row.name,
+            profileurl: row.profileurl || "",
+            category: row.categories || "Personal" // Default to Personal if missing
+          });
         }
         clusters[city].count = clusters[city].users.length;
       });

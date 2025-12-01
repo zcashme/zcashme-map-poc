@@ -13,8 +13,6 @@ export default function MapPage() {
     const navigate = useNavigate();
     const { data: clusters, loading } = useCityClusters();
 
-    const [manualCountry, setManualCountry] = useState("ALL");
-
     // Derived State
     const { derivedCity, derivedCountry } = useMemo(() => {
         if (loading) return { derivedCity: null, derivedCountry: "ALL" };
@@ -68,8 +66,8 @@ export default function MapPage() {
 
     // If URL has a city, that city dictates the country.
     // If URL has a country, that dictates the country.
-    // If URL has neither, we use the manual country filter.
-    const selectedCountry = derivedCountry !== "ALL" ? derivedCountry : manualCountry;
+    // If URL has neither, we default to "ALL".
+    const selectedCountry = derivedCountry;
 
     // Selected Filter (City) is derivedCity's name or "ALL"
     const selectedFilter = derivedCity ? derivedCity.city : "ALL";
@@ -112,10 +110,8 @@ export default function MapPage() {
 
     const handleCountrySelect = (country) => {
         if (country === "ALL") {
-            setManualCountry("ALL");
             navigate("/");
         } else {
-            setManualCountry(country);
             navigate(`/${toSlug(country)}`);
         }
     };

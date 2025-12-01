@@ -1,41 +1,29 @@
-import { useMemo } from "react";
+import { Link } from "react-router-dom";
 import ThemeToggle from "./ThemeToggle";
 import "./HeaderBar.css";
 
-/**
- * @typedef {Object} Cluster
- * @property {string} city
- * @property {number} count
- */
-
-/**
- * @param {Object} props
- * @param {Cluster[]} props.clusters
- */
-export default function HeaderBar({ clusters = [] }) {
-  const top3 = useMemo(() =>
-    [...clusters].sort((a, b) => b.count - a.count).slice(0, 3),
-    [clusters]
-  );
-
+export default function HeaderBar() {
   return (
     <header className="header-bar">
-      <div className="leaderboard">
-        <h3>Top Cities</h3>
-
-        <ol className="leader-list">
-          {top3.map((c, i) => (
-            <li key={c.city} title={`${c.city}: ${c.count} users`}>
-              <span className="rank">#{i + 1}</span>
-              <span className="city">{c.city}</span>
-              <span className="count">{c.count}</span>
-            </li>
-          ))}
-
-          {top3.length === 0 && (
-            <li className="empty">No data available</li>
-          )}
-        </ol>
+      <div className="branding">
+        <Link to="/" className="brand-link">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="brand-icon"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <line x1="2" y1="12" x2="22" y2="12" />
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+          </svg>
+          <span className="brand-text">Maps.Zcash.Me</span>
+        </Link>
       </div>
 
       <div className="header-right">

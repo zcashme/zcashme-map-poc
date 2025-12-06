@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import "./RightPanel.css";
 import MapProfileCard from "./MapProfileCard";
 import { supabase } from "../supabase";
-import { useMapProfiles } from "../hooks/useMapProfiles";
 
 export default function RightPanel({ city, onClose, isOpen }) {
   const [selectedCategory, setSelectedCategory] = useState("ALL");
@@ -11,7 +10,7 @@ export default function RightPanel({ city, onClose, isOpen }) {
   useEffect(() => {
     async function testSupabase() {
       const { data, error } = await supabase
-        .from("zcasher_with_referral_rank")   // EXACT table name from useProfiles.js
+        .from("zcasher_with_referral_rank")
         .select("id, name")
         .limit(5);
 
@@ -21,19 +20,24 @@ export default function RightPanel({ city, onClose, isOpen }) {
     testSupabase();
   }, []);
 
-  // Reset category when city changes - Handled by key prop in parent
-
-  const filteredUsers = city?.users.filter(u => {
-    if (selectedCategory === "ALL") return true;
-    return u.category === selectedCategory;
-  }) || [];
+  // Always show all users passed into the panel
+  const filteredUsers = city?.users || [];
 
   return (
     <aside className={`right-panel ${isOpen ? "open" : ""}`}>
 
       {/* Header */}
       <div className="panel-header">
-        <h2>{city ? city.city : "Click a city"}</h2>
+        <h2>
+          {city.city === "In View"
+            ? "Users in View"
+            : city.city === "Featured"
+              ? "Featured Users"
+              : city.city === "Cluster"
+                ? "Cluster"
+                : city.city}
+        </h2>
+
         <button className="close-btn" onClick={onClose}>✕</button>
       </div>
 
@@ -44,9 +48,17 @@ export default function RightPanel({ city, onClose, isOpen }) {
 
         {city && (
           <>
-            <p className="meta">{city.country} • {city.count} users</p>
+            <p className="meta">
+              {city.city === "In View"
+                ? `${city.count} users in current frame`
+                : city.city === "Featured"
+                  ? `${city.count} featured users`
+                  : city.city === "Cluster"
+                    ? `${city.count} users across multiple cities`
+                    : `${city.country} • ${city.count} users`}
+            </p>
 
-            {/* Category Sub-filter */}
+            {/* Category Sub-filter (UI only, no filtering logic) */}
             <div className="category-filter">
               {["ALL", "Business", "Personal", "Organization"].map(cat => (
                 <button
@@ -62,16 +74,15 @@ export default function RightPanel({ city, onClose, isOpen }) {
             <h3>Users ({filteredUsers.length})</h3>
 
             <ul className="user-list">
-{filteredUsers.length > 0 ? (
-  filteredUsers.map((u, i) => (
-    <li key={i} className="user-item" style={{ listStyle: "none" }}>
-      <MapProfileCard profile={u} />
-    </li>
-  ))
-) : (
-  <li className="no-users">No users found in this category.</li>
-)}
-
+              {filteredUsers.length > 0 ? (
+                filteredUsers.map((u, i) => (
+                  <li key={i} className="user-item" style={{ listStyle: "none" }}>
+                    <MapProfileCard profile={u} />
+                  </li>
+                ))
+              ) : (
+                <li className="no-users">No users found.</li>
+              )}
             </ul>
           </>
         )}

@@ -44,19 +44,24 @@ console.log("RAW SUPABASE DATA:", data);
         .filter((p) => p.zcasher_map_data)
         .map((p) => {
           const m = p.zcasher_map_data;
-          return {
+  return {
     id: p.id,
     name: p.name,
-    category: p.category || "BUnknown Failure",
+    category: p.category || "Unknown Failure",
     profile_image_url: p.profile_image_url,
     verified_links_count: p.verified_links_count,
     address_verified: p.address_verified,
     featured: p.featured,
     profileurl: `https://zcash.me/${p.slug}`,
+
     lat: m.lat,
     lon: m.lon,
 
-    created_at: p.created_at,   // ⭐ added
+    // ✅ ADD THESE FIELDS
+    city: m.city,
+    country: m.country,
+
+    created_at: p.created_at,
 
     referral_rank: p.referral_rank,
     rank_alltime: p.rank_alltime,
@@ -64,6 +69,7 @@ console.log("RAW SUPABASE DATA:", data);
     rank_monthly: p.rank_monthly,
     rank_daily: p.rank_daily,
 };
+
 
         });
 

@@ -16,28 +16,47 @@ export default function RightPanel({ city, onClose, isOpen }) {
 
       console.log("Supabase test:", data, error);
     }
-
     testSupabase();
   }, []);
 
-  // Always show all users passed into the panel
-  const filteredUsers = city?.users || [];
+  // If city is null, avoid crashes
+  const safeCity = city || {
+    city: "Loading",
+    country: "",
+    count: 0,
+    users: []
+  };
+
+  const filteredUsers = safeCity.users || [];
+
+  // Compute title safely
+  const title =
+    safeCity.city === "In View"
+      ? "Users in View"
+      : safeCity.city === "Featured"
+      ? "Featured Users"
+      : safeCity.city === "Cluster"
+      ? "Cluster"
+      : safeCity.city || "Click a city";
+
+  // Compute metadata safely
+  const meta =
+    safeCity.city === "In View"
+      ? `${safeCity.count} users in current frame`
+      : safeCity.city === "Featured"
+      ? `${safeCity.count} featured users`
+      : safeCity.city === "Cluster"
+      ? `${safeCity.count} users across multiple cities`
+      : safeCity.country
+      ? `${safeCity.country} • ${safeCity.count} users`
+      : "";
 
   return (
     <aside className={`right-panel ${isOpen ? "open" : ""}`}>
 
       {/* Header */}
       <div className="panel-header">
-        <h2>
-          {city.city === "In View"
-            ? "Users in View"
-            : city.city === "Featured"
-              ? "Featured Users"
-              : city.city === "Cluster"
-                ? "Cluster"
-                : city.city}
-        </h2>
-
+        <h2>{title}</h2>
         <button className="close-btn" onClick={onClose}>✕</button>
       </div>
 
@@ -48,17 +67,9 @@ export default function RightPanel({ city, onClose, isOpen }) {
 
         {city && (
           <>
-            <p className="meta">
-              {city.city === "In View"
-                ? `${city.count} users in current frame`
-                : city.city === "Featured"
-                  ? `${city.count} featured users`
-                  : city.city === "Cluster"
-                    ? `${city.count} users across multiple cities`
-                    : `${city.country} • ${city.count} users`}
-            </p>
+            <p className="meta">{meta}</p>
 
-            {/* Category Sub-filter (UI only, no filtering logic) */}
+            {/* Category filter (UI only) */}
             <div className="category-filter">
               {["ALL", "Business", "Personal", "Organization"].map(cat => (
                 <button

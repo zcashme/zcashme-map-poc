@@ -1,8 +1,9 @@
 import { useState, useRef, useMemo } from "react";
 import { useClickOutside } from "../hooks/useClickOutside";
 import "./FilterBar.css";
+import { getFlagForCountry } from "../utils/countryFlags";
 
-function Dropdown({ label, options, selectedValue, onSelect, placeholder = "Search..." }) {
+function Dropdown({ label, options, selectedValue, onSelect, placeholder = "Search...", isCountry }) {
     const [isOpen, setIsOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const dropdownRef = useRef(null);
@@ -27,7 +28,11 @@ function Dropdown({ label, options, selectedValue, onSelect, placeholder = "Sear
                 aria-expanded={isOpen}
                 aria-haspopup="listbox"
             >
-                <span className="trigger-label">{label}</span>
+                <span className="trigger-label">
+                    {isCountry && selectedValue !== "ALL"
+                        ? `${getFlagForCountry(selectedValue)} ${label}`
+                        : label}
+                </span>
                 <span className="trigger-icon">▼</span>
             </button>
 
@@ -62,7 +67,9 @@ function Dropdown({ label, options, selectedValue, onSelect, placeholder = "Sear
                                     role="option"
                                     aria-selected={selectedValue === opt.value}
                                 >
-                                    {opt.label} ({opt.count})
+                                    {isCountry
+                                        ? `${getFlagForCountry(opt.value)} ${opt.label} (${opt.count})`
+                                        : `${opt.label} (${opt.count})`}
                                 </li>
                             ))
                         ) : (
@@ -81,15 +88,18 @@ export default function FilterBar({ clusters, selectedFilter, onFilterSelect, se
 
     // Extract unique countries
     const countryOptions = useMemo(() => {
-        const countryMap = new Map();
+        const map = new Map();
         clusters.forEach(c => {
             if (c.country) {
-                const current = countryMap.get(c.country) || 0;
-                countryMap.set(c.country, current + c.count);
+                map.set(c.country, (map.get(c.country) || 0) + c.count);
             }
         });
-        return Array.from(countryMap.entries())
-            .map(([country, count]) => ({ label: country, value: country, count }))
+        return Array.from(map.entries())
+            .map(([country, count]) => ({
+                label: country,
+                value: country,
+                count
+            }))
             .sort((a, b) => a.label.localeCompare(b.label));
     }, [clusters]);
 
@@ -104,13 +114,15 @@ export default function FilterBar({ clusters, selectedFilter, onFilterSelect, se
             .map(c => ({ label: c.city, value: c.city, count: c.count }));
     }, [clusters, selectedCountry]);
 
-    const countryLabel = selectedCountry === "ALL" || !selectedCountry
-        ? `All Countries (${totalUsers})` // Total users might be misleading if we sum all countries, but it's basically global total
-        : `${selectedCountry} (${countryOptions.find(c => c.value === selectedCountry)?.count || 0})`;
+    const countryLabel =
+        selectedCountry === "ALL" || !selectedCountry
+            ? `All Countries (${totalUsers})`
+            : `${selectedCountry} (${countryOptions.find(c => c.value === selectedCountry)?.count || 0})`;
 
-    const cityLabel = selectedFilter === "ALL"
-        ? `All Cities`
-        : `${selectedFilter} (${clusters.find(c => c.city === selectedFilter)?.count || 0})`;
+    const cityLabel =
+        selectedFilter === "ALL"
+            ? `All Cities`
+            : `${selectedFilter} (${clusters.find(c => c.city === selectedFilter)?.count || 0})`;
 
     return (
         <div className="filter-bar-container">
@@ -120,13 +132,16 @@ export default function FilterBar({ clusters, selectedFilter, onFilterSelect, se
                 selectedValue={selectedCountry || "ALL"}
                 onSelect={onCountrySelect}
                 placeholder="Search country..."
+                isCountry={true}
             />
+
             <Dropdown
                 label={cityLabel}
                 options={cityOptions}
                 selectedValue={selectedFilter}
                 onSelect={onFilterSelect}
                 placeholder="Search city..."
+                isCountry={false}
             />
         </div>
     );

@@ -80,21 +80,20 @@ export default function MapProfileCard({ profile }) {
           )}
         </div>
 
-        <div className="category">
-          {profile.created_at &&
-            `Joined ${new Date(profile.created_at).toLocaleString("default", {
-              month: "short",
-              year: "numeric",
-            })}`}
+<div className="category">
+  {(profile.nearest_city_name || profile.city) && (
+    <>
+      {`${profile.nearest_city_name ?? profile.city}`}
+    </>
+  )}
 
-          {profile.rank_alltime > 0 && (
-            <>
-              {" "}
-              •{" "}
-              <ReferRankBadgeMulti rank={profile.rank_alltime} period="all" />
-            </>
-          )}
-        </div>
+  {profile.rank_alltime > 0 && (
+    <>
+      {" "}
+      <ReferRankBadgeMulti rank={profile.rank_alltime} period="all" />
+    </>
+  )}
+</div>
       </div>
       </a>
     </VerifiedCardWrapper>

@@ -1,9 +1,8 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "../supabase";
 
 export function useCityClusters() {
-  const [data, setData] = useState([]);      // clusters
+  const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -12,92 +11,134 @@ export function useCityClusters() {
       try {
         setLoading(true);
 
-        // 1) fetch all map rows (location data)
+        // 1) Dummy map rows (fallback)
         const { data: mapRows, error: mapError } = await supabase
           .from("zcasher_map_data")
           .select("zcasher_id, city, country, lat, lon");
 
         if (mapError) throw mapError;
 
-        // 2) fetch all zcashers with profile/card fields
-const { data: profiles, error: profileError } = await supabase
-  .from("zcasher_with_referral_rank")
-  .select(`
-    id,
-    name,
-    slug,
-    category,
-    created_at,
-    profile_image_url,
-    verified_links_count,
-    address_verified,
-    featured,
-    referral_rank,
-    rank_alltime,
-    rank_weekly,
-    rank_monthly,
-    rank_daily
-  `);
+        const dummyByUserId = new Map();
+        for (const r of mapRows || []) dummyByUserId.set(r.zcasher_id, r);
+
+        // 2) Profiles (REAL location metadata)
+        const { data: profiles, error: profileError } = await supabase
+          .from("zcasher_with_referral_rank")
+          .select(`
+            id,
+            name,
+            slug,
+            category,
+            created_at,
+            profile_image_url,
+            verified_links_count,
+            address_verified,
+            featured,
+            referral_rank,
+            rank_alltime,
+            rank_weekly,
+            rank_monthly,
+            rank_daily,
+            nearest_city_id,
+            nearest_city_name
+          `);
 
         if (profileError) throw profileError;
 
-        // 3) index profiles by id for quick lookup
-        const profileById = new Map();
-        for (const p of profiles) {
-          profileById.set(p.id, p);
-        }
+        // 3) Load all referenced cities (NO FK, manual join)
+        const cityIds = Array.from(
+          new Set(
+            profiles
+              .map(p => p.nearest_city_id)
+              .filter(id => id != null)
+          )
+        );
 
-        // 4) build clusters: group by city+country
+        const { data: cities, error: cityError } = await supabase
+          .from("worldcities")
+          .select("id, country, lat, lng")
+          .in("id", cityIds);
+
+        if (cityError) throw cityError;
+
+        const cityById = new Map();
+        for (const c of cities || []) cityById.set(c.id, c);
+
+        // 4) Build clusters
         const clusterMap = new Map();
 
-        for (const row of mapRows) {
-          const p = profileById.get(row.zcasher_id);
-          if (!p) continue; // skip if no matching profile
+        for (const p of profiles || []) {
+          const dummy = dummyByUserId.get(p.id);
+          const city = cityById.get(p.nearest_city_id);
 
-          const key = `${row.city}::${row.country}`;
+          const hasReal =
+            !!city &&
+            city.lat != null &&
+            city.lng != null &&
+            p.nearest_city_name &&
+            String(p.nearest_city_name).trim() !== "";
+
+          const hasDummy =
+            !!dummy &&
+            dummy.lat != null &&
+            dummy.lon != null &&
+            dummy.city &&
+            dummy.country;
+
+          if (!hasReal && !hasDummy) continue;
+
+          const lat = hasReal ? city.lat : dummy.lat;
+          const lon = hasReal ? city.lng : dummy.lon;
+
+          const resolvedCity = hasReal ? p.nearest_city_name : dummy.city;
+          const resolvedCountry = hasReal ? city.country : dummy.country;
+
+          const key = `${resolvedCity}::${resolvedCountry}`;
+
           let cluster = clusterMap.get(key);
           if (!cluster) {
             cluster = {
-              city: row.city,
-              country: row.country,
-              lat: row.lat,
-              lon: row.lon,
+              city: resolvedCity,
+              country: resolvedCountry,
+              lat,
+              lon,
               users: [],
             };
             clusterMap.set(key, cluster);
           }
-cluster.users.push({
-  id: p.id,
-  name: p.name,
-  category: p.category || "BUnknown Success",
-  profileurl: `https://zcash.me/${p.slug}`,
-  profile_image_url: p.profile_image_url,
-  verified_links_count: p.verified_links_count,
-  address_verified: p.address_verified,
-  featured: p.featured,
 
-  created_at: p.created_at,   // ⭐ add this
+          cluster.users.push({
+            id: p.id,
+            name: p.name,
+            category: p.category || "Unknown",
+            profileurl: `https://zcash.me/${p.slug}`,
+            profile_image_url: p.profile_image_url,
+            verified_links_count: p.verified_links_count,
+            address_verified: p.address_verified,
+            featured: p.featured,
+            created_at: p.created_at,
+            referral_rank: p.referral_rank,
+            rank_alltime: p.rank_alltime,
+            rank_weekly: p.rank_weekly,
+            rank_monthly: p.rank_monthly,
+            rank_daily: p.rank_daily,
 
-  referral_rank: p.referral_rank,
-  rank_alltime: p.rank_alltime,
-  rank_weekly: p.rank_weekly,
-  rank_monthly: p.rank_monthly,
-  rank_daily: p.rank_daily,
-});
-
-
+            location_is_real: hasReal,
+            nearest_city_id: p.nearest_city_id ?? null,
+            nearest_city_name: p.nearest_city_name ?? null,
+          });
         }
 
-        // 5) finalize clusters with count field
-        const clusters = Array.from(clusterMap.values()).map((c) => ({
+        const clusters = Array.from(clusterMap.values()).map(c => ({
           ...c,
           count: c.users.length,
+          has_real_users: c.users.some(u => u.location_is_real),
         }));
 
         setData(clusters);
         setError(null);
       } catch (err) {
-        console.error("Error loading clusters from Supabase:", err);
+        console.error("Error loading clusters:", err);
         setError(err);
       } finally {
         setLoading(false);

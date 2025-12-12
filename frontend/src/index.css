@@ -10,7 +10,7 @@
 }
 
 :root.light {
-  --bg: #f7f1e8;        /* exact zcash.me background */
+  --bg: #f7f1e8;
   --panel-bg: #ffffff;
   --muted: #616f7a;
   --text: #0f1720;
@@ -44,25 +44,38 @@ body,
 -------------------------------------------------- */
 .slide-container {
   display: flex;
-  flex-direction: row;     /* panel → left, map → right */
+  flex-direction: row;
   width: 100%;
-  height: calc(100vh - 140px); /* Header + FilterBar */
+  height: calc(100vh - 140px); /* header + filterbar */
+  padding: 0;
+  margin: 0;
+  border: none;
   overflow: hidden;
 }
 
 /* --------------------------------------------------
-   MAP AREA (FLEXES TO FILL REMAINING SPACE)
+   MAP AREA (NO BORDERS, NO GAPS, FULL HEIGHT)
 -------------------------------------------------- */
 .map-box {
   flex: 1;
   height: 100%;
-  min-width: 0;             /* CRITICAL for Leaflet resizing */
+  min-height: 0;
+  min-width: 0;
   overflow: hidden;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: none;
 }
 
 .map-box > .leaflet-container {
   width: 100%;
   height: 100%;
+  margin: 0;
+  padding: 0;
+
+  /* Critical: prevents top/bottom bars */
+  background: transparent !important;
 }
 
 /* --------------------------------------------------
@@ -73,20 +86,22 @@ body,
 }
 
 .leaflet-container {
-  background: #181818 !important;
+  /* ensures no residual background shows */
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 /* --------------------------------------------------
-   TAILWIND
+   TAILWIND IMPORTS
 -------------------------------------------------- */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* --------------------------------------------------
-   CUSTOM SCROLLBAR (Zcash.me style)
+   SCROLLBAR (Zcash.me style)
 -------------------------------------------------- */
-
 ::-webkit-scrollbar {
   width: 8px;
 }

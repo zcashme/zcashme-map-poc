@@ -60,8 +60,7 @@ export default {
         if (row.name) {
           clusters[city].users.push({
             name: row.name,
-            profileurl: row.profileurl || "",
-            category: row.categories || "Personal" // Default to Personal if missing
+            profileurl: row.profileurl || ""
           });
         }
         clusters[city].count = clusters[city].users.length;

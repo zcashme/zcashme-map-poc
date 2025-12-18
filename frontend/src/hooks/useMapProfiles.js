@@ -12,7 +12,7 @@ export function useMapProfiles() {
         .select(`
           id,
           name,
-          category,
+
           profile_image_url,
           verified_links_count,
           address_verified,
@@ -51,12 +51,12 @@ export function useMapProfiles() {
         return;
       }
 
-const profilesWithCoords = (data || [])
-  // keep only real users with an approved location (real OR legacy dummy)
-  .filter((p) =>
-    (p.worldcities && p.nearest_city_name) ||
-    (p.zcasher_map_data && p.zcasher_map_data.city)
-  )
+      const profilesWithCoords = (data || [])
+        // keep only real users with an approved location (real OR legacy dummy)
+        .filter((p) =>
+          (p.worldcities && p.nearest_city_name) ||
+          (p.zcasher_map_data && p.zcasher_map_data.city)
+        )
         .map((p) => {
           const hasReal =
             !!p.worldcities &&
@@ -82,14 +82,14 @@ const profilesWithCoords = (data || [])
           return {
             id: p.id,
             name: p.name,
-            category: p.category || "Unknown",
+
             profile_image_url: p.profile_image_url,
             verified_links_count: p.verified_links_count,
             address_verified: p.address_verified,
             featured: p.featured,
             profileurl: p.address_verified
-  ? `https://zcash.me/${p.name}`
-  : `https://zcash.me/${p.name}-${p.id}`,
+              ? `https://zcash.me/${p.name}`
+              : `https://zcash.me/${p.name}-${p.id}`,
 
             // coords used by map
             lat,

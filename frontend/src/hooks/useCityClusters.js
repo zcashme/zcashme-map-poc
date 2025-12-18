@@ -28,7 +28,7 @@ export function useCityClusters() {
             id,
             name,
             slug,
-            category,
+
             created_at,
             profile_image_url,
             verified_links_count,
@@ -110,13 +110,13 @@ export function useCityClusters() {
           cluster.users.push({
             id: p.id,
             name: p.name,
-            category: p.category || "Unknown",
+
             profileurl: (() => {
-  const safeName = p.name.trim().replace(/\s+/g, "_");
-  return p.address_verified
-    ? `https://zcash.me/${safeName}`
-    : `https://zcash.me/${safeName}-${p.id}`;
-})(),
+              const safeName = p.name.trim().replace(/\s+/g, "_");
+              return p.address_verified
+                ? `https://zcash.me/${safeName}`
+                : `https://zcash.me/${safeName}-${p.id}`;
+            })(),
 
             profile_image_url: p.profile_image_url,
             verified_links_count: p.verified_links_count,

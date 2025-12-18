@@ -4,7 +4,7 @@ import MapProfileCard from "./MapProfileCard";
 import { getFlagForCountry } from "../utils/countryFlags";
 
 export default function RightPanel({ city, onClose, isOpen }) {
-  const [selectedCategory, setSelectedCategory] = useState("ALL");
+
   const [filterText, setFilterText] = useState("");
 
   // mobile bottom-sheet state
@@ -92,9 +92,8 @@ export default function RightPanel({ city, onClose, isOpen }) {
   // -------------------------------
   return (
     <aside
-      className={`right-panel ${isOpen ? "open" : ""} ${
-        isMobile ? `mobile ${panelState}` : ""
-      }`}
+      className={`right-panel ${isOpen ? "open" : ""} ${isMobile ? `mobile ${panelState}` : ""
+        }`}
     >
       <div className="panel-header">
         <div className="header-left">
@@ -130,38 +129,28 @@ export default function RightPanel({ city, onClose, isOpen }) {
       <div className="panel-body" ref={bodyRef}>
         {!isMobile && <p className="meta">{meta}</p>}
 
-        <div className="category-filter">
-          {["ALL", "Business", "Personal", "Organization"].map((cat) => (
-            <button
-              key={cat}
-              className={`cat-btn ${selectedCategory === cat ? "active" : ""}`}
-              onClick={() => setSelectedCategory(cat)}
-            >
-              {cat}
-            </button>
-          ))}
+
+
+        <div
+          className="users-header"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px"
+          }}
+        >
+          <h3 style={{ marginRight: "auto" }}>
+            Users ({filteredUsers.length})
+          </h3>
+
+          <input
+            type="text"
+            placeholder="Filter users…"
+            value={filterText}
+            onChange={(e) => setFilterText(e.target.value)}
+            className="user-filter-input"
+          />
         </div>
-
-<div
-  className="users-header"
-  style={{
-    display: "flex",
-    alignItems: "center",
-    gap: "8px"
-  }}
->
-  <h3 style={{ marginRight: "auto" }}>
-    Users ({filteredUsers.length})
-  </h3>
-
-  <input
-    type="text"
-    placeholder="Filter users…"
-    value={filterText}
-    onChange={(e) => setFilterText(e.target.value)}
-    className="user-filter-input"
-  />
-</div>
 
 
         <ul className="user-list">

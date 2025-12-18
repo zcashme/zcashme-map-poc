@@ -1,39 +1,14 @@
-/* --- MATCH HEADER SIZE + TRANSLUCENCY --- */
-.filter-bar-container {
-    position: relative;
-    display: flex;
-    gap: 10px;
-
-    /* SAME HEIGHT AS HEADER */
-    height: 44px;
-    align-items: center;
-
-    /* SAME TRANSLUCENT GLASS AS RIGHT PANEL */
-    background: rgba(247, 241, 232, 0.20);
-    backdrop-filter: blur(24px);
-
-    /* spacing to keep layout identical */
-    padding: 0 24px;
-
-    width: auto;
-    max-width: 600px;
-    margin: 0; /* remove accidental extra vertical spacing */
-
-    border-bottom: 1px solid rgba(0,0,0,0.06);
-
-    z-index: 2000;
-    border-radius: 0; /* still flush like zcash.me */
-}
-
-
 .dropdown-wrapper {
     position: relative;
-    width: 200px;
+    width: 100%;
+    /* Changed from fixed 200px to 100% to fit container */
+    margin-bottom: 8px;
+    /* Add some spacing between stacked dropdowns */
 }
 
 .dropdown-trigger {
     width: 100%;
-    padding: 6px 12px; /* perfect Zcash.me size */
+    padding: 6px 12px;
     background: var(--bg-color, #fff);
     border: 1px solid var(--border-color, #ccc);
     border-radius: 8px;
@@ -56,22 +31,16 @@
     left: 0;
     width: 100%;
     max-height: 260px;
-
-    /* MATCH PROFILE SEARCH DROPDOWN */
     background: rgba(10, 17, 38, 0.90);
     backdrop-filter: blur(8px);
     border: 1px solid rgba(10, 17, 38, 0.60);
     border-radius: 12px;
-
     margin-top: 5px;
-    overflow-y: auto; /* match searchbar scroll */
+    overflow-y: auto;
     z-index: 2001;
-
     display: flex;
     flex-direction: column;
-
-    /* REMOVE OLD SHADOW */
-    box-shadow: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .search-box {
@@ -107,11 +76,8 @@
     padding: 8px 12px;
     cursor: pointer;
     font-size: 14px;
-
-    /* MATCH PROFILESEARCHDROPDOWN COLORS */
     color: #ffffff;
     font-weight: 500;
-
     transition: background 0.2s;
 }
 
@@ -122,16 +88,6 @@
 .dropdown-item.selected {
     background: rgba(255, 255, 255, 0.18);
     color: #6ea8fe;
-}
-
-.dropdown-item:hover {
-    background: #f0f0f0;
-}
-
-.dropdown-item.selected {
-    background: #e6f2ff;
-    color: #007bff;
-    font-weight: 500;
 }
 
 .dropdown-empty {

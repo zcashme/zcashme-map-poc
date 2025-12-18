@@ -1,10 +1,10 @@
 import { useState, useMemo } from "react";
-import L from "leaflet"; 
+import L from "leaflet";
 import { useNavigate, useParams } from "react-router-dom";
 import MapView from "../components/MapView";
 import RightPanel from "../components/RightPanel";
 import HeaderBar from "../components/HeaderBar";
-import FilterBar from "../components/FilterBar";
+
 import { useCityClusters } from "../hooks/useCityClusters";
 import { useMapProfiles } from "../hooks/useMapProfiles";
 import { toSlug, fromSlug } from "../utils/slugs";
@@ -62,63 +62,63 @@ export default function MapPage() {
     // selectedCountry MUST be defined BEFORE featured/countryCity memos
     // -----------------------------------------------
     const selectedCountry = derivedCountry;
-// -----------------------------------------------
-// In-view users: all users whose city is inside current map frame (zoom ≥ 3)
-// -----------------------------------------------
-const inViewCity = useMemo(() => {
-    if (!mapBounds) return null;
-    if (derivedCity) return null;      // city overrides
-    if (selectedCountry !== "ALL") return null; // country overrides
+    // -----------------------------------------------
+    // In-view users: all users whose city is inside current map frame (zoom ≥ 3)
+    // -----------------------------------------------
+    const inViewCity = useMemo(() => {
+        if (!mapBounds) return null;
+        if (derivedCity) return null;      // city overrides
+        if (selectedCountry !== "ALL") return null; // country overrides
 
-    // get all profiles + coordinates
-    const usersInFrame = profiles.filter(p => {
-        if (!p.lat || !p.lon) return false;
-        const latlng = L.latLng(p.lat, p.lon);
-        return mapBounds.contains(latlng);
-    });
+        // get all profiles + coordinates
+        const usersInFrame = profiles.filter(p => {
+            if (!p.lat || !p.lon) return false;
+            const latlng = L.latLng(p.lat, p.lon);
+            return mapBounds.contains(latlng);
+        });
 
-    if (usersInFrame.length === 0) return null;
+        if (usersInFrame.length === 0) return null;
 
-    return {
-        city: "In View",
-        country: "Multiple",
-        count: usersInFrame.length,
-        users: usersInFrame
-    };
-}, [mapBounds, profiles, derivedCity, selectedCountry]);
+        return {
+            city: "In View",
+            country: "Multiple",
+            count: usersInFrame.length,
+            users: usersInFrame
+        };
+    }, [mapBounds, profiles, derivedCity, selectedCountry]);
 
     // -----------------------------------------------
     // Featured users block
     // -----------------------------------------------
     const featuredCity = useMemo(() => {
-    const featuredUsers = profiles.filter(p => p.featured);
-    if (featuredUsers.length === 0) return null;
+        const featuredUsers = profiles.filter(p => p.featured);
+        if (featuredUsers.length === 0) return null;
 
-    return {
-        city: "Featured",
-        country: "ALL",
-        count: featuredUsers.length,
-        users: featuredUsers
-    };
-}, [profiles]);
+        return {
+            city: "Featured",
+            country: "ALL",
+            count: featuredUsers.length,
+            users: featuredUsers
+        };
+    }, [profiles]);
 
 
 
-// -----------------------------------------------
-// Correct: Country-wide list computed AFTER selectedCountry exists
-// -----------------------------------------------
-const countryCity = useMemo(() => {
-    if (!profiles || selectedCountry === "ALL") return null;
+    // -----------------------------------------------
+    // Correct: Country-wide list computed AFTER selectedCountry exists
+    // -----------------------------------------------
+    const countryCity = useMemo(() => {
+        if (!profiles || selectedCountry === "ALL") return null;
 
-    const users = profiles.filter(p => p.country === selectedCountry);
+        const users = profiles.filter(p => p.country === selectedCountry);
 
-    return {
-        city: selectedCountry,
-        country: selectedCountry,
-        count: users.length,
-        users
-    };
-}, [profiles, selectedCountry]);
+        return {
+            city: selectedCountry,
+            country: selectedCountry,
+            count: users.length,
+            users
+        };
+    }, [profiles, selectedCountry]);
 
 
     // -----------------------------------------------
@@ -185,13 +185,7 @@ const countryCity = useMemo(() => {
         <ThemeProvider>
             <HeaderBar clusters={clusters} />
 
-            <FilterBar
-                clusters={clusters}
-                selectedFilter={selectedFilter}
-                onFilterSelect={handleFilterSelect}
-                selectedCountry={selectedCountry}
-                onCountrySelect={handleCountrySelect}
-            />
+            {/* FilterBar REMOVED - Moved to RightPanel */}
 
             <div className={`slide-container ${derivedCity ? "open" : ""}`}>
                 <div className="map-box">
@@ -213,18 +207,23 @@ const countryCity = useMemo(() => {
                                 : "featured"
                     }
                     city={
-    derivedCity
-        ? derivedCity
-        : (selectedCountry !== "ALL" && countryCity)
-            ? countryCity
-            : inViewCity
-                ? inViewCity
-                : featuredCity
-}
-
-
+                        derivedCity
+                            ? derivedCity
+                            : (selectedCountry !== "ALL" && countryCity)
+                                ? countryCity
+                                : inViewCity
+                                    ? inViewCity
+                                    : featuredCity
+                    }
                     onClose={closePanel}
                     isOpen={true}
+
+                    /* --- NEW PROPS FOR MIGRATED FILTERS --- */
+                    clusters={clusters}
+                    selectedFilter={selectedFilter}
+                    onFilterSelect={handleFilterSelect}
+                    selectedCountry={selectedCountry}
+                    onCountrySelect={handleCountrySelect}
                 />
             </div>
         </ThemeProvider>

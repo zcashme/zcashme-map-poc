@@ -2,12 +2,21 @@
    RIGHT PANEL (FIXED-WIDTH FLEX CHILD — ALWAYS VISIBLE)
 -------------------------------------------------- */
 .right-panel {
-    position: relative;                 /* no overlay */
-    width: 340px;                       /* same width as before */
-    flex-shrink: 0;                     /* do NOT shrink */
-    height: calc(100vh - 140px);        /* same visible height */
+    position: absolute;
+    /* overlay the map */
+    right: 0;
+    /* stick to right edge */
+    top: 0;
+    /* align to top */
+    width: 340px;
+    /* same width as before */
+    flex-shrink: 0;
+    /* do NOT shrink */
+    height: 100%;
+    /* fill the container */
     overflow-y: auto;
-    z-index: 1;                         /* only used for internal stacking */
+    z-index: 100;
+    /* ensure it sits on top of map */
 
     /* TRUE translucent cream background */
     background: rgba(247, 241, 232, 0.55);
@@ -23,7 +32,8 @@
     transform: none;
     transition: none;
 
-    margin-right: 16px;                 /* same right padding effect */
+    margin-right: 0;
+    /* remove margin-right */
 }
 
 /* .open is harmless but does nothing now */
@@ -71,7 +81,8 @@
     align-items: center;
     justify-content: center;
     padding: 0;
-    margin-right: 8px; /* 👈 THIS is the only spacing change */
+    margin-right: 8px;
+    /* 👈 THIS is the only spacing change */
 }
 
 .close-btn {
@@ -134,34 +145,34 @@
 ========================= */
 
 @media (max-width: 768px) {
-  .right-panel.mobile {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    top: auto;
-    width: 100%;
-    max-width: 100%;
-    height: 80vh;
-    border-radius: 16px 16px 0 0;
-    transition: transform 0.3s ease;
-    z-index: 1000;
-  }
+    .right-panel.mobile {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        top: auto;
+        width: 100%;
+        max-width: 100%;
+        height: 80vh;
+        border-radius: 16px 16px 0 0;
+        transition: transform 0.3s ease;
+        z-index: 1000;
+    }
 
-  .right-panel.mobile.collapsed {
-    transform: translateY(65%);
-  }
+    .right-panel.mobile.collapsed {
+        transform: translateY(65%);
+    }
 
-  .right-panel.mobile.expanded {
-    transform: translateY(0);
-  }
+    .right-panel.mobile.expanded {
+        transform: translateY(0);
+    }
 
-  .right-panel.mobile .panel-header {
-    cursor: grab;
-  }
+    .right-panel.mobile .panel-header {
+        cursor: grab;
+    }
 
-  .right-panel.mobile .panel-body {
-    overflow-y: auto;
-    max-height: calc(80vh - 64px);
-  }
+    .right-panel.mobile .panel-body {
+        overflow-y: auto;
+        max-height: calc(80vh - 64px);
+    }
 }
